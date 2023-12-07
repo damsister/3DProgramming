@@ -54,11 +54,15 @@ const canvas = document.getElementById("heartCanvas");
     }
 
     // 아핀 변환 행렬 생성
-    const currentScale = 1;
-    const currentDegree = 0; // 0도를 라디안으로 표현
-    const currentPosition = new Vector3(10, 50, 1);
+    const hwScaleMatrix = 1;
+    const hwRotationMatrix = 0; // 0도를 라디안으로 표현
+    const hwTranslateMatrix = new Vector3(10, 50, 1);
 
     const affineMatrix = createAffineMatrix(currentScale, currentDegree, currentPosition);
 
     // 변환된 하트를 그리기
     drawTransformedHeart(affineMatrix);
+
+    document.getElementById("draw").addEventListener("click", () => {
+      drawTransformedHeart(affineMatrix); // "Draw Heart" 버튼 클릭 시 그림 그리기
+    });
