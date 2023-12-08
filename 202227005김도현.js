@@ -2,7 +2,7 @@ const canvas = document.getElementById("heartCanvas");
     const ctx = canvas.getContext("2d");
     const width = canvas.width;
     const height = canvas.height;
-    const scale = 5;
+    const scale = 1;
 
     // Vector3 클래스 정의
     class Vector3 {
@@ -23,13 +23,13 @@ const canvas = document.getElementById("heartCanvas");
     }
 
     // 아핀 변환 행렬 생성 함수
-    function createAffineMatrix(scale, rotation, translation) {
-      const cos = Math.cos(rotation);
-      const sin = Math.sin(rotation);
+    function createAffineMatrix(hwScaleMatrix, hwRotationMatrix, hwTranslateMatrix) {
+      const cos = Math.cos(hwRotationMatrix);
+      const sin = Math.sin(hwRotationMatrix);
 
       return [
-        scale * cos, -scale * sin, translation.X,
-        scale * sin, scale * cos, translation.Y,
+        scale * cos, -scale * sin, hwScaleMatrix.X,
+        scale * sin, scale * cos, hwScaleMatrix.Y,
         0, 0, 1
       ];
     }
@@ -53,16 +53,20 @@ const canvas = document.getElementById("heartCanvas");
       ctx.closePath();
     }
 
-    // 아핀 변환 행렬 생성
-    const hwScaleMatrix = 1;
-    const hwRotationMatrix = 0; // 0도를 라디안으로 표현
-    const hwTranslateMatrix = new Vector3(10, 50, 1);
+    document.getElementById("draw").addEventListener("click", function() {
+      const currentScale = 1;
+      const currentDegree = 0;
+      const currentPosition = new Vector3(10, 50, 1);
+  
+      const affineMatrix = createAffineMatrix(currentScale, currentDegree, currentPosition);
+      drawTransformedHeart(affineMatrix);
+    });
 
-    const affineMatrix = createAffineMatrix(currentScale, currentDegree, currentPosition);
-
-    // 변환된 하트를 그리기
-    drawTransformedHeart(affineMatrix);
-
-    document.getElementById("draw").addEventListener("click", () => {
-      drawTransformedHeart(affineMatrix); // "Draw Heart" 버튼 클릭 시 그림 그리기
+    document.getElementById("reset").addEventListener("click", function() {
+      const currentScale = 1;
+      const currentDegree = 0;
+      const currentPosition = new Vector3(10, 50, 1);
+  
+      const affineMatrix = createAffineMatrix(currentScale, currentDegree, currentPosition);
+      drawTransformedHeart(affineMatrix);
     });
