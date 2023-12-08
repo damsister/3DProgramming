@@ -1,7 +1,7 @@
 const canvas = document.getElementById("heartCanvas");
 const ctx = canvas.getContext("2d");
 
-let heartPoints = [];
+let heartPoints = []; 
 
 // 하트를 그리는 함수
 function drawHeart() {
@@ -18,6 +18,7 @@ function drawHeart() {
   for (let i = 0; i < heartPoints.length; i++) {
     ctx.lineTo(canvas.width / 2 + heartPoints[i].x, canvas.height / 2 + heartPoints[i].y);
   }
+
 
   ctx.stroke();
   ctx.closePath();
@@ -98,4 +99,15 @@ document.getElementById("draw").addEventListener("click", function () {
 
 document.getElementById("reset").addEventListener("click", function () {
   resetCanvas();
+});
+
+// 이동 값 변경시 Canvas에 적용
+document.getElementById("translateX").addEventListener("input", function () {
+  translateX = parseFloat(this.value);
+  drawHeart();
+});
+
+document.getElementById("translateY").addEventListener("input", function () {
+  translateY = parseFloat(this.value);
+  drawHeart();
 });
