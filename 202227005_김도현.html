@@ -9,7 +9,8 @@
         #c {
           border: 1px solid #000;
         }
-    
+        
+        /* 정보 표시 영역 스타일 */
         #info {
           position: absolute;
           top: 0;
@@ -18,14 +19,16 @@
           font-family: Arial, sans-serif;
           font-size: 14px;
         }
-    
+        
+        /* 슬라이더 위치 설정 */
         #sliders {
           position: absolute;
           top: 250px; /* 조절할 수 있는 위치로 조정하세요. */
           right: 10%;
           margin: 10px;
         }
-    
+        
+        /* 정보 표시 */
         #info
           {
             border: solid 1px black;
@@ -34,8 +37,9 @@
             width: 40%;
             padding: 10px;
           }
-    
-          #draw, #undo, #reset
+          
+          /* 버튼 */
+          #reset
           {
             margin-top: 5px;
           }
@@ -43,6 +47,8 @@
 </head>
 <body onload="drawH()" onmousedown="startDragging(event)" onmousemove="drag(event)" onmouseup="stopDragging()">
     <canvas id="c" width="500" height="500"></canvas>
+
+    <!-- 정보표시 -->
     <div id="info">
       <!-- 이동 정보 -->
       <label for="translateX">이동(X):</label>
@@ -60,6 +66,7 @@
       <br><br><br><br>
         <button id="reset" onclick="resetH()">Reset</button>
     </div>
+    <!-- 슬라이더 -->
     <div id="sliders">
       <label for="scaleX">Scale X:</label>
       <input type="range" id="scaleX" min="0.1" max="5" step="0.1" value="2" oninput="updateScaleX(this.value)">
@@ -69,6 +76,7 @@
     </div>
   
     <script>
+      // 자바스크립트 변수 및 함수 설정
       var canvas = document.getElementById("c");
       var ctx = canvas.getContext("2d");
   
@@ -76,8 +84,8 @@
       var stop = Math.PI * 2; // radians
   
       var arr = [];
-      var resolution = 60; // how many points to connect
-      var step = stop / resolution; // angle increment per point
+      var resolution = 60; // 연결할 점의 개수
+      var step = stop / resolution; // 각 점에서의 각도 증가량
       var scaleX = 2;
       var scaleY = 2;
       var isDragging = false;
@@ -170,7 +178,8 @@
             scaleY = parseFloat(this.value);
             drawH();
         });
-  
+      
+      //행렬곱
       function hwMatrixMultiply(matrix1, matrix2) {
         var result = [];
         for (var i = 0; i < matrix1.length; i++) {
@@ -185,7 +194,8 @@
         }
         return result;
       }
-  
+      
+      //이동행렬
       function hwTranslateMatrix(tx, ty) {
         var translationMatrix = [
           [1, 0, tx], // tx는 x 방향으로의 이동량
@@ -195,7 +205,8 @@
   
         return translationMatrix;
       }
-  
+      
+      //확대축소행렬
       function hwScaleMatrix(sx, sy) {
         var scaleMatrix = [
           [sx, 0, 0], // sx는 x 방향으로의 크기 조정 비율
@@ -205,7 +216,8 @@
   
         return scaleMatrix;
       }
-  
+      
+      //회전행렬
       function hwRotationMatrix(degrees) {
         var theta = degrees * Math.PI / 180;
   
@@ -220,18 +232,21 @@
   
         return rotationMatrix;
       }
-  
+      
+      // 주어진 이동, 회전 및 크기 조절에 대한 행렬 계산
       function hwCompositionMatrix(tx, ty, sx, sy, degrees) {
-        var compositionMatrix = hwMatrixMultiply(hwTranslateMatrix(tx, ty), hwMatrixMultiply(hwRotationMatrix(degrees), hwScaleMatrix(sx, sy)));
+        var compositionMatrix = hwMatrixMultiply (hwTranslateMatrix(tx, ty), hwMatrixMultiply(hwRotationMatrix(degrees), hwScaleMatrix(sx, sy)));
   
         return compositionMatrix;
       }
-  
+      
+      // 드래그 이벤트 처리 함수들
       function startDragging(e) {
+        // 마우스 위치 파악
         var mouseX = e.clientX - c.getBoundingClientRect().left;
         var mouseY = e.clientY - c.getBoundingClientRect().top;
   
-        // Check if the mouse is within the bounds of the heart
+        // 마우스가 하트 내부에 있는지 확인
         if (
           mouseX >= heartCenter.x - scaleX * 20 && mouseX <= heartCenter.x + scaleX * 20 &&
           mouseY >= heartCenter.y - scaleY * 20 && mouseY <= heartCenter.y + scaleY * 20
@@ -259,12 +274,14 @@
         rotationAngle += e.deltaY / 10; // 회전 각도를 휠의 deltaY 값에 따라 조절
         drawH();
       });
-  
+      
+      // 슬라이더 값을 업데이트하여 확대(X) 조절
       function updateScaleX(value) {
         scaleX = parseFloat(value);
         drawH();
       }
-  
+      
+      // 슬라이더 값을 업데이트하여 확대(Y) 조절
       function updateScaleY(value) {
         scaleY = parseFloat(value);
         drawH();
