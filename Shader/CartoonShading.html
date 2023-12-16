@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>
+		<script type="module">
+			// 필요한 모듈을 제공된 URL에서 가져옵니다.
+			import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+
+			// 장면(scene), 카메라(camera), 렌더러(renderer) 설정
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+			renderer.setClearColor(new THREE.Color(1, 1, 0));
+
+			//const geometry = new THREE.CylinderGeometry( 1, 1, 1, 32 ); 
+
+			// 지오메트리(구 형태) 생성
+			const geometry = new THREE.SphereGeometry(1, 32, 32);
+
+			// HTML 스크립트 요소에서 쉐이더 코드를 가져옴
+			var vShader = document.getElementById('vertexShader').innerHTML;
+			var fShader = document.getElementById('fragmentShader').innerHTML;
+
+			// 버텍스 쉐이더와 프래그먼트 쉐이더를 사용하여 쉐이더 소재 생성
+			const material = new THREE.ShaderMaterial({
+				vertexShader: vShader,
+				fragmentShader: fShader
+			});
+
+			// 지오메트리와 소재를 사용하여 메쉬 생성 후 장면에 추가
+			const cube = new THREE.Mesh(geometry, material);
+			scene.add(cube);
+
+			// 카메라 위치 설정
+			camera.position.z = 5;
+
+			// 큐브를 애니메이트하는 함수
+			function animate() {
+				requestAnimationFrame(animate);
+
+				cube.rotation.x += 0.01;
+				cube.rotation.y += 0.01;
+
+				renderer.render(scene, camera);
+			}
+
+			animate(); // 애니메이션 시작
+		</script>
+
+		<!-- 버텍스 쉐이더 -->
+		<script id="vertexShader" type="x-shader/x-vertex">
+			// 정점 위치와 법선을 처리하는 버텍스 쉐이더
+			varying vec3 vNormal;
+			varying vec3 vViewPosition;
+
+			void main() {
+				vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+				gl_Position = projectionMatrix * mvPosition;
+				vNormal = normalMatrix * normal;
+				vViewPosition = -mvPosition.xyz;
+			}
+		</script>
+
+		<!-- 프래그먼트 쉐이더 -->
+		<script id="fragmentShader" type="x-shader/x-fragment">
+			// 각 프래그먼트(픽셀)의 색상을 처리하는 프래그먼트 쉐이더
+			varying vec3 vNormal;
+			varying vec3 vViewPosition;
+
+			void main() {
+				// 조명 계산
+				vec3 normal = normalize(vNormal);
+				vec3 viewDir = normalize(vViewPosition);
+				vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
+
+				float ambientStrength = 0.2;
+				vec3 ambient = ambientStrength * vec3(1.0, 1.0, 1.0);
+
+				float diff = max(dot(normal, lightDir), 0.0);
+				vec3 diffuse = diff * vec3(1.0, 0.0, 0.0);
+
+				vec3 reflectDir = reflect(-lightDir, normal);
+				float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+				vec3 specular = vec3(0.5) * spec;
+
+				vec3 result = (ambient + diffuse + specular);
+				//vec3 result = (specular);
+				//vec3 result = (diffuse);
+
+				// Apply a step function to create discrete shading bands
+
+				// 이산적인 쉐이딩 밴드를 만들기 위해 단계 함수를 적용
+				float threshold = 0.4;
+				vec3 banding = floor(result / threshold);
+				vec3 finalIntensity = banding * threshold;
+				
+				gl_FragColor = vec4(finalIntensity.x, finalIntensity.y, finalIntensity.z, 1.0);
+
+				//gl_FragColor = vec4(result, 1.0);
+			}
+		</script>
+	</body>
+</html>

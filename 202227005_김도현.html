@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>하트</title>
+    <style>
+        #c {
+          border: 1px solid #000;
+        }
+    
+        #info {
+          position: absolute;
+          top: 0;
+          right: 0;
+          margin: 10px;
+          font-family: Arial, sans-serif;
+          font-size: 14px;
+        }
+    
+        #sliders {
+          position: absolute;
+          top: 250px; /* 조절할 수 있는 위치로 조정하세요. */
+          right: 10%;
+          margin: 10px;
+        }
+    
+        #info
+          {
+            border: solid 1px black;
+            background-color: gray;
+            height: 480px;
+            width: 40%;
+            padding: 10px;
+          }
+    
+          #draw, #undo, #reset
+          {
+            margin-top: 5px;
+          }
+      </style>
+</head>
+<body onload="drawH()" onmousedown="startDragging(event)" onmousemove="drag(event)" onmouseup="stopDragging()">
+    <canvas id="c" width="500" height="500"></canvas>
+    <div id="info">
+      <!-- 이동 정보 -->
+      <label for="translateX">이동(X):</label>
+      <input type="number" id="translateX" value="0"><br>
+      <label for="translateY">이동(Y):</label>
+      <input type="number" id="translateY" value="0"><br>
+      <!-- 회전 정보 -->
+      <label for="rotateAngle">회전:</label>
+      <input type="number" id="rotateAngle" value="0"><br>
+      <!-- 확대 정보 -->
+      <label for="scaleX">확대(X):</label>
+      <input type="number" id="scaleX" value="2"><br>
+      <label for="scaleY">확대(Y):</label>
+      <input type="number" id="scaleY" value="2"><br>
+      <br><br><br><br>
+        <button id="reset" onclick="resetH()">Reset</button>
+    </div>
+    <div id="sliders">
+      <label for="scaleX">Scale X:</label>
+      <input type="range" id="scaleX" min="0.1" max="5" step="0.1" value="2" oninput="updateScaleX(this.value)">
+      <br>
+      <label for="scaleY">Scale Y:</label>
+      <input type="range" id="scaleY" min="0.1" max="5" step="0.1" value="2" oninput="updateScaleY(this.value)">
+    </div>
+  
+    <script>
+      var canvas = document.getElementById("c");
+      var ctx = canvas.getContext("2d");
+  
+      var start = 0;
+      var stop = Math.PI * 2; // radians
+  
+      var arr = [];
+      var resolution = 60; // how many points to connect
+      var step = stop / resolution; // angle increment per point
+      var scaleX = 2;
+      var scaleY = 2;
+      var isDragging = false;
+      var offsetX, offsetY, rotationAngle = 0;
+      var heartCenter = { x: 180, y: 150 };
+  
+      function drawH() {
+        ctx.clearRect(0, 0, c.width, c.height); //캔버스 초기화
+        ctx.beginPath();
+        for (var i = 0; i < resolution + 1; i++) {
+          var angle = step * i;
+          var point = {
+            x: (16 * (Math.sin(angle) ** 3)),
+            y: -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle))
+          };
+  
+          // 이동, 크기, 회전
+          var pointMatrix = [
+            [point.x],
+            [point.y],
+            [1]
+          ];
+  
+          var compositionMatrix = hwCompositionMatrix(heartCenter.x, heartCenter.y, scaleX, scaleY, -rotationAngle);
+          var hresult = hwMatrixMultiply(compositionMatrix, pointMatrix);
+  
+          if (i !== 0) ctx.lineTo(hresult[0][0], hresult[1][0]);
+          else ctx.moveTo(hresult[0][0], hresult[1][0]);
+  
+          arr.push(point);
+        }
+        ctx.stroke();
+  
+        // 정보 업데이트
+        updateInfo();
+      }
+  
+      function resetH() {
+        // 하트의 초기 위치로 되돌리는 함수
+        heartCenter = { x: 180, y: 150 }; // 초기 위치로 변경
+        rotationAngle = 0; // 회전 각도 초기화
+        scaleX = 2; // 확대(X) 초기화
+        scaleY = 2; // 확대(Y) 초기화
+      }
+  
+      document.getElementById("reset").addEventListener("click", function () {
+        resetH();
+        drawH(); // Reset 후 바로 그리도록 수정
+      });
+  
+      function updateInfo() {
+        // 정보 업데이트
+        document.getElementById("translateX").value = heartCenter.x
+        document.getElementById("translateY").value = heartCenter.y
+  
+        document.getElementById("rotateAngle").value = rotationAngle
+  
+        document.getElementById("scaleX").value = scaleX
+        document.getElementById("scaleY").value = scaleY
+      }
+
+    // 새로운 코드: 입력값 변경 이벤트 핸들러
+    var translateXInput = document.getElementById("translateX");
+        var translateYInput = document.getElementById("translateY");
+        var rotateAngleInput = document.getElementById("rotateAngle");
+        var scaleXInput = document.getElementById("scaleX");
+        var scaleYInput = document.getElementById("scaleY");
+
+        translateXInput.addEventListener('input', function () {
+            heartCenter.x = parseFloat(this.value);
+            drawH();
+        });
+
+        translateYInput.addEventListener('input', function () {
+            heartCenter.y = parseFloat(this.value);
+            drawH();
+        });
+
+        rotateAngleInput.addEventListener('input', function () {
+            rotationAngle = parseFloat(this.value);
+            drawH();
+        });
+
+        scaleXInput.addEventListener('input', function () {
+            scaleX = parseFloat(this.value);
+            drawH();
+        });
+
+        scaleYInput.addEventListener('input', function () {
+            scaleY = parseFloat(this.value);
+            drawH();
+        });
+  
+      function hwMatrixMultiply(matrix1, matrix2) {
+        var result = [];
+        for (var i = 0; i < matrix1.length; i++) {
+          result[i] = [];
+          for (var j = 0; j < matrix2[0].length; j++) {
+            var sum = 0;
+            for (var k = 0; k < matrix1[0].length; k++) {
+              sum += matrix1[i][k] * matrix2[k][j];
+            }
+            result[i][j] = sum;
+          }
+        }
+        return result;
+      }
+  
+      function hwTranslateMatrix(tx, ty) {
+        var translationMatrix = [
+          [1, 0, tx], // tx는 x 방향으로의 이동량
+          [0, 1, ty], // ty는 y 방향으로의 이동량
+          [0, 0, 1]
+        ];
+  
+        return translationMatrix;
+      }
+  
+      function hwScaleMatrix(sx, sy) {
+        var scaleMatrix = [
+          [sx, 0, 0], // sx는 x 방향으로의 크기 조정 비율
+          [0, sy, 0], // sy는 y 방향으로의 크기 조정 비율
+          [0, 0, 1]
+        ];
+  
+        return scaleMatrix;
+      }
+  
+      function hwRotationMatrix(degrees) {
+        var theta = degrees * Math.PI / 180;
+  
+        var cos = Math.cos(theta);
+        var sin = Math.sin(theta);
+  
+        var rotationMatrix = [
+          [cos, -sin, 0], // theta는 각도
+          [sin, cos, 0],
+          [0, 0, 1]
+        ];
+  
+        return rotationMatrix;
+      }
+  
+      function hwCompositionMatrix(tx, ty, sx, sy, degrees) {
+        var compositionMatrix = hwMatrixMultiply(hwTranslateMatrix(tx, ty), hwMatrixMultiply(hwRotationMatrix(degrees), hwScaleMatrix(sx, sy)));
+  
+        return compositionMatrix;
+      }
+  
+      function startDragging(e) {
+        var mouseX = e.clientX - c.getBoundingClientRect().left;
+        var mouseY = e.clientY - c.getBoundingClientRect().top;
+  
+        // Check if the mouse is within the bounds of the heart
+        if (
+          mouseX >= heartCenter.x - scaleX * 20 && mouseX <= heartCenter.x + scaleX * 20 &&
+          mouseY >= heartCenter.y - scaleY * 20 && mouseY <= heartCenter.y + scaleY * 20
+        ) {
+          isDragging = true;
+          offsetX = mouseX - heartCenter.x;
+          offsetY = mouseY - heartCenter.y;
+        }
+      }
+  
+      function drag(e) {
+        if (isDragging) {
+          heartCenter.x = e.clientX - offsetX;
+          heartCenter.y = e.clientY - offsetY;
+          drawH();
+        }
+      }
+  
+      function stopDragging() {
+        isDragging = false;
+      }
+  
+      // 마우스 휠 이벤트로 회전 각도 조절
+      c.addEventListener("wheel", function (e) {
+        rotationAngle += e.deltaY / 10; // 회전 각도를 휠의 deltaY 값에 따라 조절
+        drawH();
+      });
+  
+      function updateScaleX(value) {
+        scaleX = parseFloat(value);
+        drawH();
+      }
+  
+      function updateScaleY(value) {
+        scaleY = parseFloat(value);
+        drawH();
+      }
+    </script>
+  </body>
+</html>

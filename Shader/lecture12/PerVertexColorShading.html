@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>
+		<script type="module">
+			// Three.js에서 필요한 모듈 가져오기
+			import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+
+			// 장면(scene), 카메라(camera), 렌더러(renderer) 생성
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+			// 렌더러의 배경색 설정
+			renderer.setClearColor(new THREE.Color(1, 1, 0));
+
+			//const geometry = new THREE.CylinderGeometry( 1, 1, 1, 6 ); 
+
+			// 기하학적 형상 정의 (여기서는 구 형태)
+            const geometry = new THREE.SphereGeometry(1, 8, 8);
+			//const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			//const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+
+			// 정점 쉐이더와 프래그먼트 쉐이더 생성
+			var vShader = document.getElementById( 'vertexShader' ).innerHTML;
+			var fShader = document.getElementById( 'fragmentShader' ).innerHTML;
+
+			// 정점과 프래그먼트 쉐이더를 이용하여 쉐이더 소재(material) 생성
+			var material = new THREE.ShaderMaterial({
+				vertexShader : vShader,
+				fragmentShader : fShader
+			});
+
+			// 메쉬 생성 후 장면에 추가
+			const object = new THREE.Mesh( geometry, material );
+			scene.add( object );
+
+			// 초기 카메라 위치 설정
+			camera.position.z = 5;
+
+			// 장면을 애니메이션화하는 함수
+			function animate() {
+				requestAnimationFrame( animate );
+
+				object.rotation.x += 0.01;
+				object.rotation.z += 0.01;
+
+				renderer.render( scene, camera );
+			}
+
+			animate(); // 애니메이션 시작
+		</script>
+
+		<!-- 정점 쉐이더 코드 -->
+		<script id="vertexShader" type="x-shader/x-vertex">
+			// 색상을 프래그먼트 쉐이더로 전달하기 위한 변수 선언
+			varying vec3 vColor;
+			void main() {
+				// 정점의 장면 내 위치 계산
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1);
+				// 정규화된 정점 법선과 미리 정의된 벡터(1,1,1)의 내적 계산
+				float diff = dot(normalize(normalMatrix *normal),normalize(vec3(1,1,1)));
+				// 내적 값에 따라 색상을 지정하여 변수에 할당
+				vColor = vec3(1.0,1.0,1.0) * diff;
+		}
+		</script> 
+
+		<!-- 프래그먼트 쉐이더 코드 -->
+		<script id="fragmentShader" type="x-shader/x-fragment">
+			// 정점 쉐이더로부터 색상 전달 받음
+			varying vec3 vColor;
+			void main() {    
+				// 받은 색상을 이용하여 프래그먼트에 색상 지정
+				gl_FragColor = vec4(vColor,1.0f);		
+			}
+		</script> 
+	</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>
+		<!-- three.js 라이브러리를 불러오고, 기본적인 WebGL 설정 -->
+		<script type="module">
+			// three.js 라이브러리 가져오기
+			import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+
+			// 씬, 카메라, 렌더러 생성
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+            
+			// 캔버스 배경색 설정
+            renderer.setClearColor(new THREE.Color(1, 1, 0));
+
+			// 구체(geometry)와 Gouraud 쉐이딩을 적용할 ShaderMaterial 생성
+			const geometry = new THREE.SphereGeometry(1, 32, 32);
+			//const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			var vShader = document.getElementById( 'vertexShader' ).innerHTML;
+			var fShader = document.getElementById( 'fragmentShader' ).innerHTML;
+			var material = new THREE.ShaderMaterial({
+				vertexShader : vShader,
+				fragmentShader : fShader
+			});
+			const cube = new THREE.Mesh( geometry, material );
+			scene.add( cube );
+
+			// 카메라 위치 조정
+			camera.position.z = 5;
+
+			// 애니메이션 함수
+			function animate() {
+				requestAnimationFrame( animate );
+
+				cube.rotation.x += 0.01;
+				cube.rotation.y += 0.01;
+
+				renderer.render( scene, camera );
+			}
+
+			animate(); // 애니메이션 실행
+		</script>
+
+<!-- Gouraud 쉐이딩을 위한 정점 쉐이더 코드 -->
+<script id="vertexShader" type="x-shader/x-vertex">
+    varying vec3 vNormal;
+    varying vec3 vViewPosition;
+
+    void main() {
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+        gl_Position = projectionMatrix * mvPosition;
+        vNormal = normalize(normalMatrix * normal);
+        vViewPosition = -mvPosition.xyz;
+    }
+</script>
+
+<!-- Gouraud 쉐이딩을 위한 프래그먼트 쉐이더 코드 -->
+<script id="fragmentShader" type="x-shader/x-fragment">
+    varying vec3 vNormal;
+    varying vec3 vViewPosition;
+
+    void main() {
+        vec3 normal = normalize(vNormal);
+        vec3 viewDir = normalize(vViewPosition);
+        vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
+
+        float diff = max(dot(normal, lightDir), 0.0);
+        vec3 diffuse = diff * vec3(1.0, 1.0, 1.0);
+
+        gl_FragColor = vec4(diffuse, 1.0);
+    }
+</script>
+	</body>
+</html>

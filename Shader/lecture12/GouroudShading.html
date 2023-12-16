@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>
+		<!-- Three.js를 가져오기 위한 모듈을 로드 -->
+		<script type="module">
+			// Three.js를 가져옴
+			import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+
+			// 씬(Scene), 카메라(Camera), 렌더러(Renderer)를 생성
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+			
+			// 배경 색상을 설정
+            renderer.setClearColor(new THREE.Color(1, 1, 0));
+			
+			// 구(Geometry)를 생성하여 쉐이더(Shader)로 렌더링
+			//const geometry = new THREE.CylinderGeometry( 1, 1, 1, 6 ); 
+			const geometry = new THREE.SphereGeometry(1, 8, 8);
+			//const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			var vShader = document.getElementById( 'vertexShader' ).innerHTML;
+			var fShader = document.getElementById( 'fragmentShader' ).innerHTML;
+			var material = new THREE.ShaderMaterial({
+				vertexShader : vShader,
+				fragmentShader : fShader
+			});
+			const cube = new THREE.Mesh( geometry, material );
+			scene.add( cube );
+
+			// 카메라 위치 설정
+			camera.position.z = 5;
+
+			// 애니메이션 함수
+			function animate() {
+				requestAnimationFrame( animate );
+
+				// 구 회전 애니메이션
+				cube.rotation.x += 0.01;
+				cube.rotation.y += 0.01;
+
+				// 씬과 카메라로 렌더링
+				renderer.render( scene, camera );
+			}
+
+			animate(); // 애니메이션 시작
+		</script>
+
+<!-- 쉐이더(Shader) 소스코드 -->
+<script id="vertexShader" type="x-shader/x-vertex">
+	// 각 버텍스(Vertex)에서의 노멀 벡터 계산
+    varying vec3 vNormal;
+
+    void main() {
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        vNormal = normalize(normalMatrix * normal);
+    }
+</script>
+
+<script id="fragmentShader" type="x-shader/x-fragment">
+	// 조명 계산을 통한 픽셀 색상 계산
+    varying vec3 vNormal;
+
+    void main() {                
+        vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0)); // 조명 방향 벡터
+        float diff = max(dot(vNormal, lightDir), 0.0); // 조명과 노멀 벡터 사이의 각도에 따른 밝기 계산
+        vec3 diffuse = diff * vec3(1.0, 1.0, 1.0); // 밝기에 따른 색상 계산
+        gl_FragColor = vec4(diffuse, 1.0); // 픽셀 색상 설정
+    }
+</script>
+	</body>
+</html>

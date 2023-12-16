@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>
+		<script type="module">
+			 // 필요한 Three.js 모듈 가져오기
+			import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+
+			// 씬(Scene), 카메라(Camera), 렌더러(Renderer) 생성
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+			// 구(Geometry) 생성
+            const geometry = new THREE.SphereGeometry(1, 32, 32);
+			//const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			//const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+
+			//쉐이더 코드 가져오기
+			var vShader = document.getElementById( 'vertexShader' ).innerHTML;
+			var fShader = document.getElementById( 'fragmentShader' ).innerHTML;
+			// 쉐이더 소재(Material) 생성
+			var material = new THREE.ShaderMaterial({
+				vertexShader : vShader,
+				fragmentShader : fShader
+			});
+			// 메쉬(Mesh) 생성 및 씬에 추가
+			const cube = new THREE.Mesh( geometry, material );
+			scene.add( cube );
+
+			// 카메라 위치 설정
+			camera.position.z = 5;
+
+			// 애니메이션 함수
+			function animate() {
+				requestAnimationFrame( animate );
+
+				// 회전 애니메이션
+				cube.rotation.x += 0.01;
+				cube.rotation.y += 0.01;
+				
+				// 렌더링
+				renderer.render( scene, camera );
+			}
+
+			// 애니메이션 호출
+			animate();
+		</script>
+
+<!-- 버텍스 쉐이더 코드 -->
+<script id="vertexShader" type="x-shader/x-vertex">
+  varying vec3 vNormal;
+  void main() {
+	// 표면 법선 벡터 계산
+    vNormal = normalize(normalMatrix * normal);
+	// 정점 위치 계산
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+</script> 
+
+<!-- 프래그먼트 쉐이더 코드 -->
+<script id="fragmentShader" type="x-shader/x-fragment">
+  varying vec3 vNormal;
+  void main() {
+	// 표면과 빛의 각도 계산
+    float intensity = dot(vNormal, vec3(0.0, 0.0, 1.0));
+	// 픽셀 색상 계산
+    gl_FragColor = vec4(0.0, 0.5, 1.0, 1.0) * intensity;
+   }
+ </script> 
+	</body>
+</html>
