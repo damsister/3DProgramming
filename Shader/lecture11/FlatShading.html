@@ -41,7 +41,8 @@
 			camera.position.z = 5;
 
 			// 애니메이션 함수
-			function animate() {
+			function animate() 
+			{
 				requestAnimationFrame( animate );
 
 				// 회전 애니메이션
@@ -59,7 +60,8 @@
 <!-- 버텍스 쉐이더 코드 -->
 <script id="vertexShader" type="x-shader/x-vertex">
   varying vec3 vNormal;
-  void main() {
+  void main() 
+  {
 	// 표면 법선 벡터 계산
     vNormal = normalize(normalMatrix * normal);
 	// 정점 위치 계산
@@ -70,7 +72,8 @@
 <!-- 프래그먼트 쉐이더 코드 -->
 <script id="fragmentShader" type="x-shader/x-fragment">
   varying vec3 vNormal;
-  void main() {
+  void main() 
+  {
 	// 표면과 빛의 각도 계산
     float intensity = dot(vNormal, vec3(0.0, 0.0, 1.0));
 	// 픽셀 색상 계산

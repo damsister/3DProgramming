@@ -40,7 +40,8 @@
 			camera.position.z = 5;
 
 			// 애니메이션 함수
-			function animate() {
+			function animate() 
+			{
 				requestAnimationFrame( animate );
 
 				cube.rotation.x += 0.01;
@@ -57,7 +58,8 @@
     varying vec3 vNormal;
     varying vec3 vViewPosition;
 
-    void main() {
+    void main() 
+	{
         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
         gl_Position = projectionMatrix * mvPosition;
         vNormal = normalize(normalMatrix * normal);
@@ -70,7 +72,8 @@
     varying vec3 vNormal;
     varying vec3 vViewPosition;
 
-    void main() {
+    void main() 
+	{
         vec3 normal = normalize(vNormal);
         vec3 viewDir = normalize(vViewPosition);
         vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));

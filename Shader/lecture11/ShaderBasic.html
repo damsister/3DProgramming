@@ -45,7 +45,8 @@
 			camera.position.z = 5;
 
 			// 애니메이션 함수를 정의하고 호출합니다.
-			function animate() {
+			function animate() 
+			{
 				requestAnimationFrame( animate );
 
 				cube.rotation.x += 0.01;
@@ -59,14 +60,16 @@
 
 		<!-- 버텍스 쉐이더 코드 -->
 		<script id="vertexShader" type="x-shader/x-vertex">
-		void main() {
+		void main() 
+		{
 			gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
 		}
 		</script> 
 
 		<!-- 프래그먼트 쉐이더 코드 -->
 		<script id="fragmentShader" type="x-shader/x-fragment">
-		void main() {
+		void main() 
+		{
 			gl_FragColor = vec4(0.0, 0.5, 1.0, 1.0); // R, G, B, A
 		}
 		</script> 

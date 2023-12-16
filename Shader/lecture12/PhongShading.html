@@ -45,7 +45,8 @@
 			camera.position.z = 5;
 
 			// 메쉬 애니메이션 함수
-			function animate() {
+			function animate() 
+			{
 				requestAnimationFrame(animate);
 
 				cube.rotation.x += 0.01;
@@ -64,7 +65,8 @@
 			varying vec3 vViewPosition;
 
 			// 버텍스 쉐이더의 주 함수
-			void main() {
+			void main() 
+			{
 				// 버텍스 위치를 화면 공간으로 변환
 				vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
 				gl_Position = projectionMatrix * mvPosition;
@@ -82,7 +84,8 @@
 			varying vec3 vViewPosition;
 
 			// 프래그먼트 쉐이더의 주 함수
-			void main() {
+			void main() 
+			{
 				// 정규화된 노말과 뷰 방향 계산
 				vec3 normal = normalize(vNormal);
 				vec3 viewDir = normalize(vViewPosition);

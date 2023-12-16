@@ -42,7 +42,8 @@
 			camera.position.z = 5;
 
 			// 애니메이션 함수
-			function animate() {
+			function animate() 
+			{
 				requestAnimationFrame( animate );
 
 				// 구 회전 애니메이션
@@ -61,7 +62,8 @@
 	// 각 버텍스(Vertex)에서의 노멀 벡터 계산
     varying vec3 vNormal;
 
-    void main() {
+    void main() 
+	{
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         vNormal = normalize(normalMatrix * normal);
     }
@@ -71,7 +73,8 @@
 	// 조명 계산을 통한 픽셀 색상 계산
     varying vec3 vNormal;
 
-    void main() {                
+    void main() 
+	{                
         vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0)); // 조명 방향 벡터
         float diff = max(dot(vNormal, lightDir), 0.0); // 조명과 노멀 벡터 사이의 각도에 따른 밝기 계산
         vec3 diffuse = diff * vec3(1.0, 1.0, 1.0); // 밝기에 따른 색상 계산

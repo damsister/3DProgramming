@@ -6,43 +6,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>하트</title>
     <style>
-        #c {
-          border: 1px solid #000;
-        }
+      /* 캔버스 */
+      #c 
+      {
+        border: 1px solid #000;
+      }
         
-        /* 정보 표시 영역 스타일 */
-        #info {
-          position: absolute;
-          top: 0;
-          right: 0;
-          margin: 10px;
-          font-family: Arial, sans-serif;
-          font-size: 14px;
-        }
+      /* 정보 표시 영역 스타일 */
+      #info 
+      {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 10px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+      }
         
-        /* 슬라이더 위치 설정 */
-        #sliders {
-          position: absolute;
-          top: 250px; /* 조절할 수 있는 위치로 조정하세요. */
-          right: 10%;
-          margin: 10px;
-        }
+      /* 슬라이더 위치 설정 */
+      #sliders 
+      {
+        position: absolute;
+        top: 250px; /* 조절할 수 있는 위치로 조정하세요. */
+        right: 10%;
+        margin: 10px;
+      }
         
-        /* 정보 표시 */
-        #info
-          {
-            border: solid 1px black;
-            background-color: gray;
-            height: 480px;
-            width: 40%;
-            padding: 10px;
-          }
+      /* 정보 표시 */
+      #info
+      {
+        border: solid 1px black;
+        background-color: gray;
+        height: 480px;
+        width: 40%;
+        padding: 10px;
+      }
           
-          /* 버튼 */
-          #reset
-          {
-            margin-top: 5px;
-          }
+      /* 버튼 */
+      #reset
+      {
+        margin-top: 5px;
+      }
       </style>
 </head>
 <body onload="drawH()" onmousedown="startDragging(event)" onmousemove="drag(event)" onmouseup="stopDragging()">
@@ -64,7 +68,7 @@
       <label for="scaleY">확대(Y):</label>
       <input type="number" id="scaleY" value="2"><br>
       <br><br><br><br>
-        <button id="reset" onclick="resetH()">Reset</button>
+      <button id="reset" onclick="resetH()">Reset</button>
     </div>
     <!-- 슬라이더 -->
     <div id="sliders">
@@ -92,10 +96,12 @@
       var offsetX, offsetY, rotationAngle = 0;
       var heartCenter = { x: 180, y: 150 };
   
-      function drawH() {
+      function drawH() 
+      {
         ctx.clearRect(0, 0, c.width, c.height); //캔버스 초기화
         ctx.beginPath();
-        for (var i = 0; i < resolution + 1; i++) {
+        for (var i = 0; i < resolution + 1; i++) 
+        {
           var angle = step * i;
           var point = {
             x: (16 * (Math.sin(angle) ** 3)),
@@ -123,7 +129,8 @@
         updateInfo();
       }
   
-      function resetH() {
+      function resetH() 
+      {
         // 하트의 초기 위치로 되돌리는 함수
         heartCenter = { x: 180, y: 150 }; // 초기 위치로 변경
         rotationAngle = 0; // 회전 각도 초기화
@@ -136,7 +143,8 @@
         drawH(); // Reset 후 바로 그리도록 수정
       });
   
-      function updateInfo() {
+      function updateInfo() 
+      {
         // 정보 업데이트
         document.getElementById("translateX").value = heartCenter.x
         document.getElementById("translateY").value = heartCenter.y
@@ -180,13 +188,17 @@
         });
       
       //행렬곱
-      function hwMatrixMultiply(matrix1, matrix2) {
+      function hwMatrixMultiply(matrix1, matrix2) 
+      {
         var result = [];
-        for (var i = 0; i < matrix1.length; i++) {
+        for (var i = 0; i < matrix1.length; i++) 
+        {
           result[i] = [];
-          for (var j = 0; j < matrix2[0].length; j++) {
+          for (var j = 0; j < matrix2[0].length; j++) 
+          {
             var sum = 0;
-            for (var k = 0; k < matrix1[0].length; k++) {
+            for (var k = 0; k < matrix1[0].length; k++) 
+            {
               sum += matrix1[i][k] * matrix2[k][j];
             }
             result[i][j] = sum;
@@ -196,7 +208,8 @@
       }
       
       //이동행렬
-      function hwTranslateMatrix(tx, ty) {
+      function hwTranslateMatrix(tx, ty) 
+      {
         var translationMatrix = [
           [1, 0, tx], // tx는 x 방향으로의 이동량
           [0, 1, ty], // ty는 y 방향으로의 이동량
@@ -207,7 +220,8 @@
       }
       
       //확대축소행렬
-      function hwScaleMatrix(sx, sy) {
+      function hwScaleMatrix(sx, sy) 
+      {
         var scaleMatrix = [
           [sx, 0, 0], // sx는 x 방향으로의 크기 조정 비율
           [0, sy, 0], // sy는 y 방향으로의 크기 조정 비율
@@ -218,7 +232,8 @@
       }
       
       //회전행렬
-      function hwRotationMatrix(degrees) {
+      function hwRotationMatrix(degrees) 
+      {
         var theta = degrees * Math.PI / 180;
   
         var cos = Math.cos(theta);
@@ -234,14 +249,16 @@
       }
       
       // 주어진 이동, 회전 및 크기 조절에 대한 행렬 계산
-      function hwCompositionMatrix(tx, ty, sx, sy, degrees) {
+      function hwCompositionMatrix(tx, ty, sx, sy, degrees) 
+      {
         var compositionMatrix = hwMatrixMultiply (hwTranslateMatrix(tx, ty), hwMatrixMultiply(hwRotationMatrix(degrees), hwScaleMatrix(sx, sy)));
   
         return compositionMatrix;
       }
       
       // 드래그 이벤트 처리 함수들
-      function startDragging(e) {
+      function startDragging(e) 
+      {
         // 마우스 위치 파악
         var mouseX = e.clientX - c.getBoundingClientRect().left;
         var mouseY = e.clientY - c.getBoundingClientRect().top;
@@ -257,15 +274,18 @@
         }
       }
   
-      function drag(e) {
-        if (isDragging) {
+      function drag(e) 
+      {
+        if (isDragging) 
+        {
           heartCenter.x = e.clientX - offsetX;
           heartCenter.y = e.clientY - offsetY;
           drawH();
         }
       }
   
-      function stopDragging() {
+      function stopDragging() 
+      {
         isDragging = false;
       }
   
@@ -276,13 +296,15 @@
       });
       
       // 슬라이더 값을 업데이트하여 확대(X) 조절
-      function updateScaleX(value) {
+      function updateScaleX(value) 
+      {
         scaleX = parseFloat(value);
         drawH();
       }
       
       // 슬라이더 값을 업데이트하여 확대(Y) 조절
-      function updateScaleY(value) {
+      function updateScaleY(value) 
+      {
         scaleY = parseFloat(value);
         drawH();
       }
